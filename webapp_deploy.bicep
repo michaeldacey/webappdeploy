@@ -16,7 +16,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-pr
   }
   properties: {
     adminUserEnabled: false
-    publicNetworkAccess: 'Disabled'
+    // publicNetworkAccess: 'Disabled' only fo Premium sku
   }
 }
 
