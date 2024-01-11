@@ -2,6 +2,11 @@
 name: Docker Image Build Workflow
 # https://github.com/Azure/webapps-deploy#sample-workflow-to-build-and-deploy-a-nodejs-app-to-containerized-webapp-using-azure-service-principal
 
+# Using workload identity federation to authenticate to Azure
+permissions:
+    id-token: write
+    contents: read
+    
 env:
     AZURE_WEBAPP_NAME: your-app-name  # set this to the name of your Azure Web App
     ACR_URL: contoso.azurecr.io
