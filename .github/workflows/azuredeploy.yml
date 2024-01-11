@@ -1,0 +1,39 @@
+name: Web App Deployment Demo
+
+# Using workload identity federation to authenticate to Azure
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  workflow_dispatch:
+
+env:
+    resourceGroup: demo-resource-gp
+
+jobs:
+  deploy_infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Bicep File
+        uses: actions/checkout@v3
+
+      # Login to Azure using Workflow Identity Federation
+      - name: 'Az CLI login'
+        uses: azure/login@v1
+        with:
+          client-id: ${{secrets.AZURE_CLIENT_ID}}
+          tenant-id: ${{secrets.AZURE_TENANT_ID}}
+          subscription-id: ${{secrets.AZURE_SUBSCRIPTION_ID}}
+
+      # Deploy Bicep
+      - name: 'Deploy the Azure infrastructure using Bicep'
+        uses: azure/arm-deploy@v1
+        id: deploy_bicep
+        with:
+            scope: resourcegroup
+            subscriptionId: ${{secrets.AZURE_SUBSCRIPTION_ID}}
+            resourceGroupName: ${{env.resourceGroup}}
+            template: ./webapp_deploy.bicep
+            parameters: ./webapp_deploy.bicepparam
+            deploymentName: webapp_deployment
