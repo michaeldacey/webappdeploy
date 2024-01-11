@@ -15,7 +15,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-pr
     name: 'Basic'
   }
   properties: {
-    adminUserEnabled: false
+    adminUserEnabled: true  // We need a password for allow docker login
     // publicNetworkAccess: 'Disabled' only fo Premium sku
   }
 }
