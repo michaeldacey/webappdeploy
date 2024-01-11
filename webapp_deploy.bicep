@@ -4,7 +4,7 @@ param acrName string
 param imageName string
 param imageTag string = 'latest'
 param appName string
-param location string
+param location string = resourceGroup().location
 
 // https://samcogan.com/creating-an-azure-web-app-or-function-running-a-container-with-bicep/
 
