@@ -9,7 +9,7 @@ param location string = resourceGroup().location
 // https://samcogan.com/creating-an-azure-web-app-or-function-running-a-container-with-bicep/
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
-  name: acrName
+  name: 'acrName${uniqueString(resourceGroup().id)}'
   location: location
   sku: {
     name: 'Basic'
@@ -21,7 +21,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-pr
 }
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-09-01' = {
-  name: '${appName}${uniqueString(resourceGroup().id)}'
+  name: '${appName}ServicePlan${uniqueString(resourceGroup().id)}'
   location: location
   properties: {
     reserved: true   // needed for linux
@@ -34,7 +34,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-09-01' = {
 
 // Use system assigned managed identity to provide secure access to ACR
 resource webApp 'Microsoft.Web/sites@2022-09-01' = {
-  name: appName
+  name: '${appName}${uniqueString(resourceGroup().id)}'
   location: location
   properties: {
     serverFarmId: appServicePlan.id
