@@ -1,0 +1,59 @@
+
+name: Docker Image Build Workflow
+# https://github.com/Azure/webapps-deploy#sample-workflow-to-build-and-deploy-a-nodejs-app-to-containerized-webapp-using-azure-service-principal
+
+env:
+    AZURE_WEBAPP_NAME: your-app-name  # set this to the name of your Azure Web App
+    ACR_URL: contoso.azurecr.io
+    ACR_REPO: nodejssampleapp
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # checkout the repo
+      - name: 'Checkout Github Action'
+        uses: actions/checkout@master
+
+    # Login to Azure using Workflow Identity Federation
+      - name: 'Az CLI login'
+        uses: azure/login@v1
+        with:
+            client-id: ${{secrets.AZURE_CLIENT_ID}}
+            tenant-id: ${{secrets.AZURE_TENANT_ID}}
+            subscription-id: ${{secrets.AZURE_SUBSCRIPTION_ID}}
+
+      - uses: azure/docker-login@v1
+        with:
+            login-server: ${{ env.ACR_URL }}
+            username: ${{ secrets.REGISTRY_USERNAME }}
+            password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build and push container image to registry
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: ${{ env.ACR_URL }}/${{ env.ACR_REPO }}:${{ github.sha }}
+          file: ./dockerfile
+
+  deploy:
+    permissions:
+      contents: none
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'Development'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          images: '${{ env.ACR_URL }}/${{ env.ACR_REPO }}:${{ github.sha }}'
