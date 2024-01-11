@@ -9,7 +9,7 @@ param location string = resourceGroup().location
 // https://samcogan.com/creating-an-azure-web-app-or-function-running-a-container-with-bicep/
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
-  name: 'acrName${uniqueString(resourceGroup().id)}'
+  name: '${acrName}${uniqueString(resourceGroup().id)}'
   location: location
   sku: {
     name: 'Basic'
