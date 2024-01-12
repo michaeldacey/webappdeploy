@@ -9,7 +9,7 @@ permissions:
 
 env:
     AZURE_WEBAPP_NAME: mywebappkdkollc2an64c # set this to the name of your Azure Web App
-    ACR_URL: michaeldacey.azurecr.io
+    ACR_URL: myacrkdkollc2an64c.azurecr.io
     ACR_REPO: webappdeploy
 
 on:
