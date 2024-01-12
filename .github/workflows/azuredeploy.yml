@@ -31,7 +31,7 @@ jobs:
         id: site-creds
         with:
           inlineScript: |
-            spId=$(az ad sp list --filter "appId eq '$appId'" --query [].id --output tsv)
+            spId=$(az ad sp list --filter "appId eq '${{secrets.AZURE_CLIENT_ID}}'" --query [].id --output tsv)
             # Mask the principal id so it is not shown in workflow logs
             APP_SP_ID="$spId"
             echo "::add-mask::$APP_SP_ID"
