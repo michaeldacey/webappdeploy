@@ -63,11 +63,11 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
 // az role definition list --name "AcrPull" --query [].id -o tsv
 // az role definition list --name "AcrPush" --query [].id -o tsv
 // See https://learn.microsoft.com/en-gb/azure/role-based-access-control/built-in-roles
-resource acrPush 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
+resource acrPush 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
   name: '8311e382-0749-4cb8-b61a-304f252e45ec'
 }
 
-resource acrPull 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
+resource acrPull 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
   name: '7f951dda-4ed3-4680-a7ca-43fe172d538d'
 }
 
