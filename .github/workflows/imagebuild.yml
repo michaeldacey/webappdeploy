@@ -47,14 +47,11 @@ jobs:
           file: ./dockerfile
 
   deploy:
+    needs: build
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: none  # We are only interested in the image in the Azure container registry
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'Development'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
       # Login to Azure using Workflow Identity Federation
