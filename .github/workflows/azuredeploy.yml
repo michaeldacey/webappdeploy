@@ -26,6 +26,23 @@ jobs:
           tenant-id: ${{secrets.AZURE_TENANT_ID}}
           subscription-id: ${{secrets.AZURE_SUBSCRIPTION_ID}}
 
+      - name: 'Retrieve the service principal id for the application'
+        uses: azure/CLI@v1 
+        id: site-creds
+        with:
+          inlineScript: |
+            spId=$(az ad sp list --filter "appId eq '$appId'" --query [].id --output tsv)
+            # Mask the principal id so it is not shown in workflow logs
+            APP_SP_ID="$spId"
+            echo "::add-mask::$APP_SP_ID"
+            echo APP_SP_ID=$APP_SP_ID >> $GITHUB_ENV
+
+      # Update the bicep param file with the correct application
+      # service principal id
+      - name: 'Update Bicep Param File'
+        run: |
+          sed -i "s/<spId>/${{env.APP_SP_ID}}/g" webapp_deploy.bicepparam
+
       # Deploy Bicep
       - name: 'Deploy the Azure infrastructure using Bicep'
         uses: azure/arm-deploy@v1

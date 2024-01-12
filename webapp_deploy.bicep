@@ -5,6 +5,8 @@ param imageName string
 param imageTag string = 'latest'
 param appName string
 param location string = resourceGroup().location
+@secure()
+param applicationServicePrincipalId string
 
 // https://samcogan.com/creating-an-azure-web-app-or-function-running-a-container-with-bicep/
 
@@ -56,3 +58,44 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
       type: 'SystemAssigned'
   }
 }
+
+// This is the build in AcrPull role.
+// az role definition list --name "AcrPull" --query [].id -o tsv
+// az role definition list --name "AcrPush" --query [].id -o tsv
+// See https://learn.microsoft.com/en-gb/azure/role-based-access-control/built-in-roles
+resource acrPush 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
+  name: '8311e382-0749-4cb8-b61a-304f252e45ec'
+}
+
+resource acrPull 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
+  name: '7f951dda-4ed3-4680-a7ca-43fe172d538d'
+}
+
+// Allow the application service principal to push an image to the ACR
+// so that GitHub Actions can push the image to the ACR
+resource acrPushRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(containerRegistry.name, 'AcrPush')
+  properties: {
+    roleDefinitionId: acrPush.id
+    principalId: applicationServicePrincipalId
+    principalType: 'ServicePrincipal'
+  }
+  scope: containerRegistry
+}
+
+// Allow the web app to pull an image from the ACR
+resource acrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(containerRegistry.name, 'AcrPull')
+  properties: {
+    roleDefinitionId: acrPull.id
+    principalId: webApp.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+  scope: containerRegistry
+}
+
+
+
+
+
+
