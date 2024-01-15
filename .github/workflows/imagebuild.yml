@@ -46,9 +46,9 @@ jobs:
       - name: The ACR server name and repo name must both be all in lower case
         id: acrconfig
         run: |
-          echo a=$(echo $ACR_URL|tr '[:upper:]' '[:lower:]')&&echo ACR_URL=$a >> "$GITHUB_OUTPUT"
+          echo a=$(echo $ACR_URL|tr '[:upper:]' '[:lower:]')&&echo ACR_URL_L=$a >> "$GITHUB_OUTPUT"
           echo a=$(echo $ACR_REPO|tr '[:upper:]' '[:lower:]')&&echo ACR_REPO=$a >> "$GITHUB_OUTPUT"
-          echo "ACR_URL is ${{ steps.acrconfig.outputs.ACR_URL }}"
+          echo "ACR_URL is ${{ steps.acrconfig.outputs.ACR_URL_L }}"
 
       - name: Build and push container image to registry
         uses: docker/build-push-action@v5
