@@ -20,6 +20,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      # Output from this build job to the subsequent deploy job
+      ACR_URL: ${{ steps.acrconfig.outputs.ACR_URL }}
+      ACR_REPO: ${{ steps.acrconfig.outputs.ACR_REPO }}
     steps:
       # checkout the repo
       - name: 'Checkout Github Action'
@@ -39,11 +43,17 @@ jobs:
             username: ${{ secrets.REGISTRY_USERNAME }}
             password: ${{ secrets.REGISTRY_PASSWORD }}
 
+      - name: The ACR server name and repo name must both be all in lower case
+        id: acrconfig
+        run: |
+          echo a=$(echo $ACR_URL|tr '[:upper:]' '[:lower:]')&&echo ACR_URL=$a >> $GITHUB_OUTPUT
+          echo a=$(echo $ACR_REPO|tr '[:upper:]' '[:lower:]')&&echo ACR_REPO=$a >> $GITHUB_OUTPUT
+
       - name: Build and push container image to registry
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ${{ env.ACR_URL }}/${{ env.ACR_REPO }}:${{ github.sha }}
+          tags: ${{ steps.acrconfig.outputs.ACR_URL }}/${{ steps.acrconfig.outputs.ACR_REPO }}:${{ github.sha }}
           file: ./dockerfile
 
   deploy:
@@ -67,4 +77,4 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          images: '${{ env.ACR_URL }}/${{ env.ACR_REPO }}:${{ github.sha }}'
+          images: '${{ needs.build.outputs.ACR_URL }}/${{ needs.build.outputs.ACR_REPO }}:${{ github.sha }}'
